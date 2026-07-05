@@ -4,6 +4,9 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = (
@@ -11,7 +14,7 @@ SECRET_KEY = (
 )
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 DEBUG = not PRODUCTION
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
 AUTH_USER_MODEL = 'jobs.User'
 INSTALLED_APPS = [
   'django.contrib.admin',
@@ -29,9 +32,11 @@ INSTALLED_APPS = [
 
 CORS_ALLOWED_ORIGINS = [
   'http://localhost:5173',
+  'https://devjobs.vercel.app'
 ]
 MIDDLEWARE = [
   'django.middleware.security.SecurityMiddleware',
+  'whitenoise.middleware.WhiteNoiseMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
   'corsheaders.middleware.CorsMiddleware',
   'django.middleware.common.CommonMiddleware',
@@ -55,16 +60,19 @@ TEMPLATES = [
     },
   },
 ]
-WSGI_APPLICATION = 'devjobs.wsgi.application'
+WSGI_APPLICATION = 'devjobs.wsgi.app'
 DATABASES = {
-  'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': os.getenv('POSTGRES_DB'),
-    'USER': os.getenv('POSTGRES_USER'),
-    'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-    'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
-    'PORT': os.getenv('POSTGRES_PORT', '5432'),
-  }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': os.getenv('SUPABASE_DATABASE_HOST'),
+        'PORT': os.getenv('SUPABASE_DATABASE_PORT'),
+        'NAME': os.getenv('SUPABASE_DATABASE_NAME'),
+        'USER': os.getenv('SUPABASE_DATABASE_USER'),
+        'PASSWORD': os.getenv('SUPABASE_DATABASE_PASSWORD'),
+        'OPTIONS': {
+            'sslmode': 'require',
+    }
+}
 }
 AUTH_PASSWORD_VALIDATORS = [
   {
@@ -85,7 +93,8 @@ TIME_ZONE = 'America/Lima'
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = 'static/'
-
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 NINJA_JWT = {
   # Para que en el /refresh me refresque tambien el refresh token
   'ROTATE_REFRESH_TOKENS': True,

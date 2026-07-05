@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.conf.urls.static import static
+
 from importlib.metadata import files
 
 from apps.jobs.api.endpoints.applications import router_applications
@@ -11,7 +14,6 @@ from apps.jobs.api.endpoints.technologies import router_technologies
 from apps.jobs.api.endpoints.users import router_users
 from django.contrib import admin
 from django.urls import path
-from backend.devjobs import settings
 from ninja_extra import NinjaExtraAPI
 from ninja_jwt.controller import NinjaJWTDefaultController
 
